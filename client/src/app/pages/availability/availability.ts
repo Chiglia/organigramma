@@ -94,6 +94,11 @@ export class AvailabilityComponent {
     ];
   }
 
+  removePerson(person: Person): void {
+    this.people = this.people.filter((p) => p.id !== person.id);
+    this.emitChange();
+  }
+
   private emitChange(): void {
     this.availabilityChange.emit(this.people);
   }

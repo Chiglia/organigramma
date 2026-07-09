@@ -2,6 +2,7 @@
   <p-table [value]="people" responsiveLayout="scroll" size="small" styleClass="p-datatable-sm">
     <ng-template pTemplate="header">
       <tr>
+        <th class="w-10 text-center"></th>
         <th class="w-32">Nome</th>
 
         <th class="w-16 text-center bg-gray-700 text-white">Tutti</th>
@@ -16,6 +17,16 @@
 
     <ng-template pTemplate="body" let-person>
       <tr>
+        <td class="text-center p-1">
+          <button
+            type="button"
+            class="flex items-center justify-center w-6 h-6 mx-auto rounded-md hover:bg-rose-400 hover:text-rose-50 text-slate-400 dark:text-slate-500 transition-colors cursor-pointer"
+            (click)="removePerson(person)"
+            title="Rimuovi persona"
+          >
+            <i class="pi pi-trash text-xs"></i>
+          </button>
+        </td>
         <td class="font-semibold whitespace-nowrap">
           {{ person.name }}
         </td>

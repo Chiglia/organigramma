@@ -6,10 +6,12 @@ import { SharedModule } from '../../../shared.module';
 
 import { Person } from '../../models/person.model';
 import { Assignment } from '../../models/assignment.model';
+import { Role } from '../../models/role.enum';
 import { OrganizationService } from '../../services/organization-generator.service';
 import { AvailabilityComponent } from "../availability/availability";
 import { OrganizationComponent } from "../organization/organization";
 import { HttpClient } from '@angular/common/http';
+import { AddPersonModal } from './add-person-modal/add-person-modal';
 
 export type ViewMode = 'role' | 'staff';
 
@@ -20,7 +22,8 @@ export type ViewMode = 'role' | 'staff';
     SharedModule,
     AvailabilityComponent,
     OrganizationComponent,
-    SelectModule
+    SelectModule,
+    AddPersonModal
   ],
   templateUrl: './home.html',
 })
@@ -40,6 +43,10 @@ export class Home {
     }
   ];
 
+  // UI state signals
+  showAddPersonModal = signal(false);
+  showClearConfirmation = signal(false);
+  errorMsg = signal<string | null>(null);
 
   private organizationService = inject(OrganizationService);
   private http = inject(HttpClient);
@@ -81,5 +88,116 @@ export class Home {
 
   removeAssignment(assignment: Assignment) {
     this.assignments.update((list) => list.filter((a) => a !== assignment));
+  }
+
+  // --- NEW CUSTOM FEATURES ---
+
+  openAddPersonModal(): void {
+    this.showAddPersonModal.set(true);
+  }
+
+  closeAddPersonModal(): void {
+    this.showAddPersonModal.set(false);
+  }
+
+  onPersonAdded(event: { name: string; roles: Role[] }): void {
+    const currentPeople = this.people();
+    const maxId = currentPeople.reduce((max, p) => (p.id > max ? p.id : max), 0);
+    const newId = maxId + 1;
+
+    const newPerson: Person = {
+      id: newId,
+      name: event.name.trim(),
+      availableRoles: event.roles,
+    };
+
+    this.people.set([...currentPeople, newPerson]);
+    this.closeAddPersonModal();
+  }
+
+  askClearAllPeople(): void {
+    this.showClearConfirmation.set(true);
+  }
+
+  cancelClearAllPeople(): void {
+    this.showClearConfirmation.set(false);
+  }
+
+  confirmClearAllPeople(): void {
+    this.people.set([]);
+    this.assignments.set([]);
+    this.hasGenerated = false;
+    this.showClearConfirmation.set(false);
+  }
+
+  onJsonUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const data = JSON.parse(text);
+
+        if (!Array.isArray(data)) {
+          this.showErrorMessage('Il file JSON deve contenere un array di persone.');
+          return;
+        }
+
+        const parsedPeople: Person[] = data.map((item: any, index: number) => {
+          return {
+            id: typeof item.id === 'number' ? item.id : index + 1,
+            name: typeof item.name === 'string' ? item.name : 'Senza nome',
+            availableRoles: Array.isArray(item.availableRoles) ? item.availableRoles : [],
+          };
+        });
+
+        this.people.set(parsedPeople);
+        this.assignments.set([]);
+        this.hasGenerated = false;
+        this.errorMsg.set(null);
+
+        // Reset file input so same file can be uploaded again if needed
+        input.value = '';
+      } catch (err) {
+        this.showErrorMessage('Errore nel parsing del file JSON. Assicurati che sia un JSON valido.');
+        console.error(err);
+      }
+    };
+
+    reader.readAsText(file);
+  }
+
+  showErrorMessage(msg: string): void {
+    this.errorMsg.set(msg);
+    setTimeout(() => {
+      if (this.errorMsg() === msg) {
+        this.errorMsg.set(null);
+      }
+    }, 6000);
+  }
+
+  dismissError(): void {
+    this.errorMsg.set(null);
+  }
+
+  exportJson(): void {
+    try {
+      const dataStr = JSON.stringify(this.people(), null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+      const exportFileDefaultName = 'organigramma-capi.json';
+
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+    } catch (err) {
+      this.showErrorMessage("Errore durante l'esportazione del file JSON.");
+      console.error(err);
+    }
   }
 }

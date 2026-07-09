@@ -2,15 +2,105 @@
   <p-card>
     <ng-template #title> Organigramma Co.Ca. ({{ people().length }} capi) </ng-template>
 
-    <div class="mb-4">
-      <p-select
-        [options]="viewModes"
-        optionLabel="label"
-        optionValue="value"
-        [(ngModel)]="viewMode"
-        (onChange)="onViewModeChange()"
+    @if (errorMsg(); as msg) {
+      <div
+        class="mb-4 flex items-center justify-between p-3 bg-rose-50 border-l-4 border-rose-500 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-850 rounded-r-lg text-sm animate-fade-in"
       >
-      </p-select>
+        <div class="flex items-center gap-2">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ msg }}</span>
+        </div>
+        <button
+          (click)="dismissError()"
+          class="text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 cursor-pointer p-0.5"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    }
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div>
+        <p-select
+          [options]="viewModes"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="viewMode"
+          (onChange)="onViewModeChange()"
+        >
+        </p-select>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <input
+          type="file"
+          #jsonFileInput
+          class="hidden"
+          accept=".json"
+          (change)="onJsonUpload($event)"
+        />
+
+        <p-button
+          label="Aggiungi Capo"
+          icon="pi pi-user-plus"
+          severity="success"
+          size="small"
+          (onClick)="openAddPersonModal()"
+        >
+        </p-button>
+
+        <p-button
+          label="Importa JSON"
+          icon="pi pi-upload"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          (onClick)="jsonFileInput.click()"
+        >
+        </p-button>
+
+        <p-button
+          label="Esporta JSON"
+          icon="pi pi-download"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          [disabled]="people().length === 0"
+          (onClick)="exportJson()"
+        >
+        </p-button>
+
+        @if (!showClearConfirmation()) {
+          <p-button
+            label="Svuota Lista"
+            icon="pi pi-trash"
+            severity="danger"
+            [outlined]="true"
+            size="small"
+            [disabled]="people().length === 0"
+            (onClick)="askClearAllPeople()"
+          >
+          </p-button>
+        } @else {
+          <div
+            class="flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg text-xs font-semibold text-rose-700 animate-fade-in"
+          >
+            <span>Sei sicuro?</span>
+            <button
+              (click)="confirmClearAllPeople()"
+              class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-md cursor-pointer font-medium transition-colors"
+            >
+              Sì, svuota
+            </button>
+            <button
+              (click)="cancelClearAllPeople()"
+              class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md cursor-pointer font-medium transition-colors"
+            >
+              Annulla
+            </button>
+          </div>
+        }
+      </div>
     </div>
 
     <div class="flex flex-col gap-4">
@@ -39,5 +129,12 @@
       (assignmentRemove)="removeAssignment($event)"
     >
     </app-organization>
+  }
+
+  @if (showAddPersonModal()) {
+    <app-add-person-modal
+      (close)="closeAddPersonModal()"
+      (add)="onPersonAdded($event)"
+    ></app-add-person-modal>
   }
 </div>
