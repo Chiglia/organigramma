@@ -78,4 +78,8 @@ export class Home {
     this.hasGenerated = false;
     this.assignments.set([]);
   }
+
+  removeAssignment(assignment: Assignment) {
+    this.assignments.update((list) => list.filter((a) => a !== assignment));
+  }
 }

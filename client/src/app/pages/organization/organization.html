@@ -3,9 +3,17 @@
     <ng-template #title> Organigramma </ng-template>
 
     @if (viewMode === 'role') {
-      <app-organization-role [assignments]="assignments"> </app-organization-role>
+      <app-organization-role
+        [assignments]="assignments"
+        (assignmentRemove)="assignmentRemove.emit($event)"
+      >
+      </app-organization-role>
     } @else {
-      <app-organization-staff [assignments]="assignments"> </app-organization-staff>
+      <app-organization-staff
+        [assignments]="assignments"
+        (assignmentRemove)="assignmentRemove.emit($event)"
+      >
+      </app-organization-staff>
     }
   </p-card>
 </div>

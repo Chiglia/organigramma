@@ -1,4 +1,4 @@
-import { Component, Input, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { SharedModule } from '../../../shared.module';
@@ -28,4 +28,7 @@ export class OrganizationComponent {
 
   @Input()
   viewMode: ViewMode = 'staff';
+
+  @Output()
+  assignmentRemove = new EventEmitter<Assignment>();
 }

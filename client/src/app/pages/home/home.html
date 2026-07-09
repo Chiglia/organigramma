@@ -33,6 +33,11 @@
   </p-card>
 
   @if (hasGenerated) {
-    <app-organization [assignments]="assignments()" [viewMode]="viewMode"> </app-organization>
+    <app-organization
+      [assignments]="assignments()"
+      [viewMode]="viewMode"
+      (assignmentRemove)="removeAssignment($event)"
+    >
+    </app-organization>
   }
 </div>
