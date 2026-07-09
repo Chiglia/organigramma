@@ -1,0 +1,11 @@
+<div class="flex flex-col gap-4">
+  <p-card>
+    <ng-template #title> Organigramma </ng-template>
+
+    @if (viewMode === 'role') {
+      <app-organization-role [assignments]="assignments"> </app-organization-role>
+    } @else {
+      <app-organization-staff [assignments]="assignments"> </app-organization-staff>
+    }
+  </p-card>
+</div>

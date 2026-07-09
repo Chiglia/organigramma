@@ -1,1 +1,38 @@
-<p>home works!</p>
+<div class="flex flex-col gap-6 p-6">
+  <p-card>
+    <ng-template #title> Organigramma Co.Ca. ({{ people().length }} capi) </ng-template>
+
+    <div class="mb-4">
+      <p-select
+        [options]="viewModes"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="viewMode"
+        (onChange)="onViewModeChange()"
+      >
+      </p-select>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <app-availability
+        [people]="people()"
+        [viewMode]="viewMode"
+        (availabilityChange)="updateAvailability($event)"
+      >
+      </app-availability>
+
+      <div class="flex justify-end">
+        <p-button
+          label="Genera Organigramma"
+          icon="pi pi-sparkles"
+          (onClick)="generateOrganization()"
+        >
+        </p-button>
+      </div>
+    </div>
+  </p-card>
+
+  @if (hasGenerated) {
+    <app-organization [assignments]="assignments()" [viewMode]="viewMode"> </app-organization>
+  }
+</div>

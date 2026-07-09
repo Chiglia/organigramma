@@ -1,0 +1,45 @@
+<div class="flex flex-col gap-4">
+  <p-table [value]="people" responsiveLayout="scroll" size="small" styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="w-32">Nome</th>
+
+        <th class="w-16 text-center bg-gray-700 text-white">Tutti</th>
+
+        @for (column of tableColumns; track column.label) {
+          <th class="w-16 text-center" [ngClass]="getRoleColor(column.roles[0])">
+            {{ column.label }}
+          </th>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-person>
+      <tr>
+        <td class="font-semibold whitespace-nowrap">
+          {{ person.name }}
+        </td>
+
+        <td class="text-center p-1 bg-gray-700">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="hasAllRoles(person)"
+            (ngModelChange)="toggleAllRoles(person)"
+          >
+          </p-checkbox>
+        </td>
+
+        @for (column of tableColumns; track column.label) {
+          <td class="text-center p-1" [ngClass]="getRoleColor(column.roles[0])">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="hasColumnRole(person, column.roles)"
+              (ngModelChange)="toggleColumnRole(person, column.roles)"
+            >
+            </p-checkbox>
+          </td>
+        }
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
