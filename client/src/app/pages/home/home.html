@@ -19,19 +19,42 @@
       </div>
     }
 
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      <div>
-        <p-select
-          [options]="viewModes"
-          optionLabel="label"
-          optionValue="value"
-          [(ngModel)]="viewMode"
-          (onChange)="onViewModeChange()"
-        >
-        </p-select>
+    <div
+      class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6 pb-4 border-b border-slate-100"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto">
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider"
+            >Visualizzazione</label
+          >
+          <p-select
+            [options]="viewModes"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="viewMode"
+            (onChange)="onViewModeChange()"
+            class="w-full"
+          >
+          </p-select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider"
+            >Lista Capi Preimpostata</label
+          >
+          <p-select
+            [options]="presets"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="selectedPreset"
+            (onChange)="onPresetChange()"
+            class="w-full"
+          >
+          </p-select>
+        </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
         <input
           type="file"
           #jsonFileInput
@@ -45,30 +68,38 @@
           icon="pi pi-user-plus"
           severity="success"
           size="small"
+          class="w-full sm:w-auto"
+          fluid
           (onClick)="openAddPersonModal()"
         >
         </p-button>
 
-        <p-button
-          label="Importa JSON"
-          icon="pi pi-upload"
-          severity="secondary"
-          [outlined]="true"
-          size="small"
-          (onClick)="jsonFileInput.click()"
-        >
-        </p-button>
+        <div class="flex w-full sm:w-auto gap-2">
+          <p-button
+            label="Importa JSON"
+            icon="pi pi-upload"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            class="flex-1 sm:flex-none"
+            fluid
+            (onClick)="jsonFileInput.click()"
+          >
+          </p-button>
 
-        <p-button
-          label="Esporta JSON"
-          icon="pi pi-download"
-          severity="secondary"
-          [outlined]="true"
-          size="small"
-          [disabled]="people().length === 0"
-          (onClick)="exportJson()"
-        >
-        </p-button>
+          <p-button
+            label="Esporta JSON"
+            icon="pi pi-download"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            class="flex-1 sm:flex-none"
+            [disabled]="people().length === 0"
+            fluid
+            (onClick)="exportJson()"
+          >
+          </p-button>
+        </div>
 
         @if (!showClearConfirmation()) {
           <p-button
@@ -77,27 +108,31 @@
             severity="danger"
             [outlined]="true"
             size="small"
+            class="w-full sm:w-auto"
             [disabled]="people().length === 0"
+            fluid
             (onClick)="askClearAllPeople()"
           >
           </p-button>
         } @else {
           <div
-            class="flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg text-xs font-semibold text-rose-700 animate-fade-in"
+            class="flex items-center justify-between sm:justify-start gap-2 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-rose-700 w-full sm:w-auto animate-fade-in"
           >
             <span>Sei sicuro?</span>
-            <button
-              (click)="confirmClearAllPeople()"
-              class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-md cursor-pointer font-medium transition-colors"
-            >
-              Sì, svuota
-            </button>
-            <button
-              (click)="cancelClearAllPeople()"
-              class="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md cursor-pointer font-medium transition-colors"
-            >
-              Annulla
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button
+                (click)="confirmClearAllPeople()"
+                class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-md cursor-pointer font-medium transition-colors"
+              >
+                Sì, svuota
+              </button>
+              <button
+                (click)="cancelClearAllPeople()"
+                class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md cursor-pointer font-medium transition-colors"
+              >
+                Annulla
+              </button>
+            </div>
           </div>
         }
       </div>
@@ -115,6 +150,7 @@
         <p-button
           label="Genera Organigramma"
           icon="pi pi-sparkles"
+          class="w-full sm:w-auto"
           (onClick)="generateOrganization()"
         >
         </p-button>

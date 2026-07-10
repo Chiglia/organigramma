@@ -48,24 +48,64 @@ export class Home {
   showClearConfirmation = signal(false);
   errorMsg = signal<string | null>(null);
 
+  // Preset Selection Config
+  selectedPreset = 'pd6_2025_6';
+  presets = [
+    { label: 'Lista Vuota', value: 'empty' },
+    { label: 'PD6 2025/6', value: 'pd6_2025_6', url: 'data/people.json' },
+    { label: 'Lista Personalizzata', value: 'custom', disabled: true }
+  ];
+
   private organizationService = inject(OrganizationService);
   private http = inject(HttpClient);
   assignments = signal<Assignment[]>([]);
   hasGenerated = false;
 
   ngOnInit(): void {
-    this.http.get<Omit<Person, 'availableRoles'>[]>('data/people.json').subscribe((data) => {
-      this.people.set(
-        data.map((person) => ({
-          ...person,
-          availableRoles: [],
-        })),
-      );
-    });
+    this.loadPreset(this.selectedPreset);
+  }
+
+  loadPreset(presetValue: string): void {
+    const preset = this.presets.find((p) => p.value === presetValue);
+    if (!preset) return;
+
+    if (preset.url) {
+      this.http.get<Omit<Person, 'availableRoles'>[]>(preset.url).subscribe({
+        next: (data) => {
+          this.people.set(
+            data.map((person) => ({
+              ...person,
+              availableRoles: [],
+            })),
+          );
+          this.assignments.set([]);
+          this.hasGenerated = false;
+          this.errorMsg.set(null);
+        },
+        error: (err) => {
+          this.showErrorMessage(`Errore nel caricamento della lista preimpostata: ${preset.label}`);
+          console.error(err);
+        }
+      });
+    } else if (presetValue === 'empty') {
+      this.people.set([]);
+      this.assignments.set([]);
+      this.hasGenerated = false;
+    }
+  }
+
+  onPresetChange(): void {
+    this.loadPreset(this.selectedPreset);
   }
 
   updateAvailability(people: Person[]) {
     this.people.set(people);
+    // If the list is updated, change selected preset to custom unless it is empty
+    if (people.length === 0) {
+      this.selectedPreset = 'empty';
+    } else {
+      this.selectedPreset = 'custom';
+    }
   }
 
 
@@ -112,6 +152,7 @@ export class Home {
     };
 
     this.people.set([...currentPeople, newPerson]);
+    this.selectedPreset = 'custom';
     this.closeAddPersonModal();
   }
 
@@ -128,6 +169,7 @@ export class Home {
     this.assignments.set([]);
     this.hasGenerated = false;
     this.showClearConfirmation.set(false);
+    this.selectedPreset = 'empty';
   }
 
   onJsonUpload(event: Event): void {
@@ -156,6 +198,7 @@ export class Home {
         });
 
         this.people.set(parsedPeople);
+        this.selectedPreset = 'custom';
         this.assignments.set([]);
         this.hasGenerated = false;
         this.errorMsg.set(null);
